@@ -3,6 +3,7 @@ import {ElementRef, Injectable, NgZone} from '@angular/core';
 import {
   Engine,
   FreeCamera,
+  ArcRotateCamera,
   Scene,
   Light,
   Mesh,
@@ -42,14 +43,18 @@ export class EngineService {
     this.scene = new Scene(this.engine);
     this.scene.clearColor = new Color4(0, 0, 0, 0);
 
-    // create a FreeCamera, and set its position to (x:5, y:10, z:-20 )
-    this.camera = new FreeCamera('camera1', new Vector3(5, 10, -20), this.scene);
 
-    // target the camera to scene origin
-    this.camera.setTarget(Vector3.Zero());
+        // This creates and positions a free camera (non-mesh)
+        var camera = new ArcRotateCamera("camera1", 0, Math.PI / 4, 10, new Vector3(0, 0, 0), this.scene);
 
-    // attach the camera to the canvas
-    this.camera.attachControl(this.canvas, false);
+        // This targets the camera to scene origin
+        camera.setTarget(Vector3.Zero());
+    
+        camera.wheelDeltaPercentage = 0.01;
+    
+        // This attaches the camera to the canvas
+        camera.attachControl(canvas, true);
+
 
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     this.light = new HemisphericLight('light1', new Vector3(0, 1, 0), this.scene);
@@ -61,6 +66,10 @@ export class EngineService {
     const spherMaterial = new StandardMaterial('sun_surface', this.scene);
     spherMaterial.diffuseTexture = new Texture('assets/textures/sun.jpg', this.scene);
     this.sphere.material = spherMaterial;
+
+    var plane = Mesh.CreateGround("plane",   20,  20,10, this.scene);
+    plane.position.y = -1;
+    plane.material = spherMaterial;
 
     // move the sphere upward 1/2 of its height
     this.sphere.position.y = 1;
